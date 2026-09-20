@@ -1,25 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import type { Appointment } from "./interfaces";
-import { GetAppointments } from "./services/AppointmentService";
-
-const appointments = ref<Appointment[]>([]);
-
-const getAppointments = async () => {
-  try {
-    const response = await GetAppointments();
-
-    appointments.value = response.data;
-  } catch (error) {
-    console.error("Error fetching appointments:", error);
-  }
-};
-
-onMounted(async () => {
-  await getAppointments();
-});
+import Sidebar from "./components/Sidebar.vue";
 </script>
 
 <template>
-  <pre>{{ appointments }}</pre>
+  <div class="flex flex-1 bg-gray-50 h-screen w-full">
+    <Sidebar />
+    <main class="ml-88 mt-5 mr-8 w-full">
+      <RouterView></RouterView>
+    </main>
+  </div>
 </template>

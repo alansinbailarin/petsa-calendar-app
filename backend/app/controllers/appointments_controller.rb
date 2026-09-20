@@ -3,9 +3,13 @@ class AppointmentsController < ApplicationController
 
   # GET /appointments
   def index
-    @appointments = Appointment.all
+    if params[:search].present?
+      @appointments = Appointment.includes(:appointment_type).where("description LIKE :search OR notes LIKE :search", search: "%#{params[:search]}%").order(:starts_at)
+    else
+      @appointments = Appointment.includes(:appointment_type).where("starts_at >= ?", Time.current).order(:starts_at)
+    end
 
-    render json: @appointments
+    render json: @appointments, include: :appointment_type
   end
 
   # GET /appointments/1
@@ -39,13 +43,13 @@ class AppointmentsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_appointment
-      @appointment = Appointment.find(params[:id])
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_appointment
+    @appointment = Appointment.find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def appointment_params
-      params.require(:appointment).permit(:description, :notes, :appointment_type_id, :starts_at, :ends_at)
-    end
+  # Only allow a list of trusted parameters through.
+  def appointment_params
+    params.require(:appointment).permit(:description, :notes, :appointment_type_id, :starts_at, :ends_at)
+  end
 end
