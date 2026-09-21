@@ -1,6 +1,10 @@
 ```vue
 <template>
-  <Card @click="openModal">
+  <Card
+    class="cursor-pointer"
+    @click="openModal"
+    :color="appointment.appointment_type?.color || 'gray'"
+  >
     <div class="flex justify-between items-center mb-2">
       <h3 class="font-medium text-gray-900">
         {{ appointment.description }}
@@ -58,6 +62,13 @@
       />
 
       <Input
+        v-model="form.location"
+        label="Ubicación"
+        placeholder="Ingrese la ubicación"
+        class="col-span-2"
+      />
+
+      <Input
         v-model="form.starts_at"
         label="Fecha y hora de inicio"
         type="datetime-local"
@@ -68,6 +79,31 @@
         label="Fecha y hora de fin"
         type="datetime-local"
       />
+    </div>
+    <label class="block text-sm font-medium text-gray-700 mb-1 mt-3">
+      Personas interesadas
+    </label>
+
+    <div class="overflow-y-auto h-36 grid grid-cols-2 mt-4">
+      <div
+        v-for="person in persons"
+        :key="person.id"
+        class="flex items-center gap-2"
+      >
+        <input
+          type="checkbox"
+          :id="`person-${person.id}`"
+          :name="`person-${person.id}`"
+          :value="person.id"
+          :checked="form.people?.some((p) => p.id === person.id)"
+          class="bg-gray-900"
+          @change="selectPerson(person)"
+        />
+
+        <label :for="`person-${person.id}`">
+          {{ person.name }}
+        </label>
+      </div>
     </div>
   </Modal>
 </template>
@@ -82,10 +118,12 @@ import Dropdown from "../ui/Dropdown.vue";
 
 import type { Appointment, AppointmentType } from "../../interfaces";
 import { UpdateAppointment } from "../../services/AppointmentService.ts";
+import type { Person } from "../../interfaces/person.interface.ts";
 
 const props = defineProps<{
   appointment: Appointment;
   appointmentTypes: AppointmentType[];
+  persons: Person[];
 }>();
 
 const emit = defineEmits<{
@@ -99,6 +137,8 @@ const form = ref<Appointment>({
   description: "",
   notes: "",
   appointment_type_id: 0,
+  location: "",
+  people: [],
   starts_at: "",
   ends_at: "",
   created_at: "",
@@ -127,7 +167,8 @@ const openModal = () => {
     description: props.appointment.description,
     notes: props.appointment.notes,
     appointment_type_id: props.appointment.appointment_type_id,
-
+    location: props.appointment.location,
+    people: props.appointment.people ?? [],
     starts_at: formatForDateTimeLocal(props.appointment.starts_at),
     ends_at: formatForDateTimeLocal(props.appointment.ends_at),
 
@@ -158,6 +199,20 @@ const submitForm = async () => {
   } catch (error) {
     console.error("Error updating appointment:", error);
   }
+};
+
+const selectPerson = (person: Person) => {
+  const people = form.value.people ?? [];
+
+  const index = people.findIndex((p) => p.id === person.id);
+
+  if (index === -1) {
+    people.push(person);
+  } else {
+    people.splice(index, 1);
+  }
+
+  form.value.people = people;
 };
 
 const validateForm = () => {

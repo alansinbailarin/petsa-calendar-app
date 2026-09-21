@@ -3,7 +3,9 @@
     <div class="fixed inset-0 bg-gray-900 opacity-40" @click="closeModal"></div>
 
     <div class="fixed inset-0 flex items-center justify-center">
-      <div class="bg-white w-1/3 text-black rounded-3xl p-5">
+      <div
+        class="bg-white md:w-1/3 w-full m-4 md:m-0 text-black rounded-3xl p-5"
+      >
         <h3 class="text-gray-900 font-semibold">{{ title }}</h3>
         <p class="text-gray-600 text-sm mb-4">{{ description }}</p>
         <slot></slot>

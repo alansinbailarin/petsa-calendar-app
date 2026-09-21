@@ -1,11 +1,24 @@
 import type { Appointment, AppointmentType } from "../interfaces";
 import api from "./api";
 
-export const GetAppointments = (searchTerm?: string) => {
-  const searchParam = searchTerm
-    ? `?search=${encodeURIComponent(searchTerm)}`
-    : "";
-  return api.get<Appointment[]>(`/appointments${searchParam}`);
+export const GetAppointments = (searchTerm?: string, date?: string) => {
+  const params = new URLSearchParams();
+
+  if (searchTerm) {
+    params.append("search", searchTerm);
+  }
+
+  if (date) {
+    params.append("date", date);
+  }
+
+  const queryString = params.toString();
+
+  console.log("params", queryString);
+
+  return api.get<Appointment[]>(
+    `/appointments${queryString ? `?${queryString}` : ""}`,
+  );
 };
 
 export const GetAppointmentTypes = () => {

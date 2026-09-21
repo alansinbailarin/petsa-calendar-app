@@ -1,6 +1,9 @@
 class Appointment < ApplicationRecord
   belongs_to :appointment_type
 
+  has_many :appointment_people, dependent: :destroy
+  has_many :people, through: :appointment_people
+
   validates :description, presence: true
   validates :starts_at, presence: true
   validates :ends_at, presence: true

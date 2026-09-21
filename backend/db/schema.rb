@@ -10,11 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_09_06_203907) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_21_035356) do
+  create_table "appointment_people", force: :cascade do |t|
+    t.integer "appointment_id", null: false
+    t.integer "person_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["appointment_id"], name: "index_appointment_people_on_appointment_id"
+    t.index ["person_id"], name: "index_appointment_people_on_person_id"
+  end
+
   create_table "appointment_types", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "color"
   end
 
   create_table "appointments", force: :cascade do |t|
@@ -25,8 +35,17 @@ ActiveRecord::Schema[7.2].define(version: 2026_09_06_203907) do
     t.datetime "ends_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "location"
     t.index ["appointment_type_id"], name: "index_appointments_on_appointment_type_id"
   end
 
+  create_table "people", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_foreign_key "appointment_people", "appointments"
+  add_foreign_key "appointment_people", "people"
   add_foreign_key "appointments", "appointment_types"
 end

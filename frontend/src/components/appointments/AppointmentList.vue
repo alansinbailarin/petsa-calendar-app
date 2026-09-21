@@ -12,6 +12,7 @@
         :key="appointment.id"
         :appointmentTypes="appointmentTypes"
         @updated="updateAppointments"
+        :persons="persons"
       />
     </section>
     <section v-else class="w-full h-screen flex justify-center items-center">
@@ -27,11 +28,13 @@ import Spinner from "../ui/Spinner.vue";
 import EmptyState from "../ui/EmptyState.vue";
 import type { Appointment } from "../../interfaces";
 import AppointmentItem from "./AppointmentItem.vue";
+import type { Person } from "../../interfaces/person.interface.ts";
 
 const props = defineProps<{
   loading: boolean;
   appointments: Appointment[];
   appointmentTypes: any[];
+  persons: Person[];
 }>();
 
 const emit = defineEmits<{

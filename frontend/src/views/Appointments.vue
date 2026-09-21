@@ -30,10 +30,17 @@
       :appointments="appointments"
       :appointmentTypes="appointmentTypes"
       @updateAppointments="getAppointments"
+      :persons="persons"
+    />
+    <MonthView
+      v-else
+      class="mt-6"
+      :appointments="calendarAppointments"
+      @dayClick="getAppointmentsByDay"
     />
     <Modal
       :show="showModal"
-      @close="showModal = false"
+      @close="closeModal"
       @action="submitForm"
       title="Agregar Cita"
       description="Completa los detalles para agregar una nueva cita"
@@ -64,6 +71,13 @@
           placeholder="Seleccione un tipo de cita"
           class="col-span-2"
         />
+
+        <Input
+          v-model="form.location"
+          label="Ubicación"
+          placeholder="Ingrese la ubicación"
+          class="col-span-2"
+        />
         <Input
           v-model="form.starts_at"
           label="Fecha y hora de inicio"
@@ -76,6 +90,22 @@
           placeholder="Ingrese la fecha y hora de fin"
           type="datetime-local"
         />
+      </div>
+      <span class="block text-sm font-medium text-gray-700 mb-1 mt-3">
+        Personas interesadas
+      </span>
+      <div class="overflow-y-auto h-36 grid grid-cols-2 mt-4">
+        <div v-for="person in persons" class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            :id="`person-${person.id}`"
+            :name="`person-${person.id}`"
+            :value="person.id"
+            class="bg-gray-900"
+            @change="selectPerson(person)"
+          />
+          <label :for="`person-${person.id}`">{{ person.name }}</label>
+        </div>
       </div>
     </Modal>
   </div>
@@ -98,29 +128,37 @@ import { ViewType } from "../constants/enums.ts";
 import { QueueListIcon, CalendarDaysIcon } from "@heroicons/vue/24/outline";
 import Modal from "../components/ui/Modal.vue";
 import Dropdown from "../components/ui/Dropdown.vue";
+import type { Person } from "../interfaces/person.interface.ts";
+import { GetPersons } from "../services/PersonService.ts";
+import MonthView from "../components/ui/MonthView.vue";
 
 const appointments = ref<Appointment[]>([]);
+const calendarAppointments = ref<Appointment[]>([]);
 const appointmentTypes = ref<AppointmentType[]>([]);
 const search = ref<string>("");
 const loading = ref<boolean>(false);
 const currentView = ref<ViewType>(ViewType.LIST);
 const showModal = ref<boolean>(false);
+const persons = ref<Person[]>([]);
+const selectedDate = ref<string>("");
 
 const form = ref<Appointment>({
   id: 0,
   description: "",
   notes: "",
   appointment_type_id: 0,
+  location: "",
+  people: [],
   starts_at: "",
   ends_at: "",
   created_at: "",
   updated_at: "",
 });
 
-const loadAppointments = async (searchTerm: string = "") => {
+const loadAppointments = async (searchTerm: string = "", date: string = "") => {
   try {
     loading.value = true;
-    const response = await GetAppointments(searchTerm);
+    const response = await GetAppointments(searchTerm, date);
     appointments.value = response.data;
   } catch (error) {
     console.error("Error fetching appointments:", error);
@@ -133,11 +171,20 @@ const getAppointments = async () => {
 };
 
 const debouncedSearch = debounce(async (search: string) => {
-  loadAppointments(search);
+  currentView.value = ViewType.LIST;
+
+  const response = await GetAppointments(search, selectedDate.value);
+
+  appointments.value = response.data;
 }, 300);
 
-const switchView = (view: ViewType) => {
+const switchView = async (view: ViewType) => {
   currentView.value = view;
+
+  if (view === ViewType.LIST) {
+    selectedDate.value = "";
+    await getAppointments();
+  }
 };
 
 const getAppointmentTypes = async () => {
@@ -154,24 +201,25 @@ const submitForm = async () => {
     if (!validateForm()) {
       return;
     }
+
     await CreateAppointment(form.value);
 
     showModal.value = false;
 
-    form.value = {
-      id: 0,
-      description: "",
-      notes: "",
-      appointment_type_id: 0,
-      starts_at: "",
-      ends_at: "",
-      created_at: "",
-      updated_at: "",
-    };
+    await resetForm();
 
     await getAppointments();
   } catch (error) {
     console.error("Error creating appointment:", error);
+  }
+};
+
+const getPersons = async (searchTerm: string = "") => {
+  try {
+    const response = await GetPersons(searchTerm);
+    persons.value = response.data;
+  } catch (error) {
+    console.error("Error fetching persons:", error);
   }
 };
 
@@ -189,6 +237,70 @@ const validateForm = () => {
   return true;
 };
 
+const selectPerson = (person: Person) => {
+  const people = form.value.people ?? [];
+
+  const index = people.findIndex((p) => p.id === person.id);
+
+  if (index === -1) {
+    people.push(person);
+  } else {
+    people.splice(index, 1);
+  }
+
+  form.value.people = people;
+};
+
+const resetForm = async () => {
+  form.value = {
+    id: 0,
+    description: "",
+    notes: "",
+    appointment_type_id: 0,
+    location: "",
+    people: [],
+    starts_at: "",
+    ends_at: "",
+    created_at: "",
+    updated_at: "",
+  };
+};
+
+const closeModal = async () => {
+  showModal.value = false;
+
+  await resetForm();
+};
+
+const getCalendarAppointments = async () => {
+  try {
+    const response = await GetAppointments("*");
+    calendarAppointments.value = response.data;
+  } catch (error) {
+    console.error("Error fetching calendar appointments:", error);
+  }
+};
+
+const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const getAppointmentsByDay = async (date: Date) => {
+  const dateString = formatDate(date);
+
+  const response = await GetAppointments("", dateString);
+
+  appointments.value = response.data;
+
+  selectedDate.value = "";
+
+  currentView.value = ViewType.LIST;
+};
+
 watch(search, async (newSearch) => {
   debouncedSearch(newSearch);
 });
@@ -196,5 +308,7 @@ watch(search, async (newSearch) => {
 onMounted(async () => {
   await getAppointments();
   await getAppointmentTypes();
+  await getPersons();
+  await getCalendarAppointments();
 });
 </script>

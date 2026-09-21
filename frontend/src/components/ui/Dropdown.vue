@@ -1,19 +1,23 @@
 <template>
   <div class="relative">
     <label
-      class="block text-sm font-medium text-gray-700 mb-1"
       v-if="labelText"
+      class="block text-sm font-medium text-gray-700 mb-1"
     >
       {{ labelText }}
     </label>
+
     <button
       type="button"
       @click="isOpen = !isOpen"
       class="border w-full bg-white border-gray-200 rounded-full px-4 py-2 text-sm text-left flex items-center justify-between line-clamp-1"
     >
-      <span v-if="selectedOption">{{ selectedOption.label }}</span>
+      <span>
+        {{ selectedOption?.label ?? props.placeholder }}
+      </span>
+
       <ChevronDownIcon
-        class="w-4 h-4 inline-block ml-2 text-gray-600 transition-all ease-in-out duration-300"
+        class="w-4 h-4 inline-block ml-2 text-gray-400 transition-all ease-in-out duration-300"
         :class="isOpen ? 'rotate-180' : ''"
       />
     </button>
