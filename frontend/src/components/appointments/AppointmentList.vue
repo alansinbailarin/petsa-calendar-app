@@ -10,6 +10,8 @@
         :appointment="appointment"
         v-for="appointment in appointments"
         :key="appointment.id"
+        :appointmentTypes="appointmentTypes"
+        @updated="updateAppointments"
       />
     </section>
     <section v-else class="w-full h-screen flex justify-center items-center">
@@ -29,5 +31,14 @@ import AppointmentItem from "./AppointmentItem.vue";
 const props = defineProps<{
   loading: boolean;
   appointments: Appointment[];
+  appointmentTypes: any[];
 }>();
+
+const emit = defineEmits<{
+  (e: "updateAppointments"): void;
+}>();
+
+const updateAppointments = () => {
+  emit("updateAppointments");
+};
 </script>
