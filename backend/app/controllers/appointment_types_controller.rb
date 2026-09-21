@@ -35,6 +35,14 @@ class AppointmentTypesController < ApplicationController
 
   # DELETE /appointment_types/1
   def destroy
+    if @appointment_type.appointments.exists?
+      render json: {
+        error: "No puedes eliminar este tipo de cita porque tiene citas asociadas."
+      }, status: :unprocessable_content
+
+      return
+    end
+
     @appointment_type.destroy!
   end
 

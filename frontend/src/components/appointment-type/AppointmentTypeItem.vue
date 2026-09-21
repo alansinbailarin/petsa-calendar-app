@@ -1,11 +1,18 @@
 <template>
   <Card
-    class="cursor-pointer"
+    class="cursor-pointer flex items-center justify-between"
     @click="openModal"
     :color="appointment_type?.color || 'gray'"
   >
-    <h3>{{ appointment_type.name }}</h3></Card
-  >
+    <h3>{{ appointment_type.name }}</h3>
+    <button
+      type="button"
+      class="bg-red-50 rounded-full border border-red-200 text-sm text-red-400 px-4 py-1.5 cursor-pointer hover:bg-red-100 transition-colors ease-in-out duration-300"
+      @click.stop="deleteAppointmentType(appointment_type.id)"
+    >
+      Eliminar
+    </button>
+  </Card>
   <Modal
     :show="showModal"
     @close="showModal = false"
@@ -36,7 +43,10 @@ import type { AppointmentType } from "../../interfaces/appointment.interface.ts"
 import Card from "../ui/Card.vue";
 import Modal from "../ui/Modal.vue";
 import Input from "../ui/Input.vue";
-import { UpdateAppointmentType } from "../../services/AppointmentService.ts";
+import {
+  DeleteAppointmentType,
+  UpdateAppointmentType,
+} from "../../services/AppointmentService.ts";
 
 const props = defineProps<{
   appointment_type: AppointmentType;
@@ -85,6 +95,23 @@ const submitForm = async () => {
     emit("updated");
   } catch (error) {
     console.error("Error updating appointment:", error);
+  }
+};
+
+const deleteAppointmentType = async (appointmentTypeId: number) => {
+  try {
+    if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) {
+      return;
+    }
+
+    await DeleteAppointmentType(appointmentTypeId);
+
+    emit("updated");
+  } catch (error) {
+    console.error("Error deleting appointment type:", error);
+    alert(
+      "No se puede eliminar este tipo de cita porque tiene citas asociadas.",
+    );
   }
 };
 

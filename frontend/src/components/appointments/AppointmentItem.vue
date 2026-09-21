@@ -9,17 +9,20 @@
         {{ appointment.description }}
         ({{ appointment.appointment_type?.name }})
       </h3>
-
-      <span class="text-gray-600 text-sm hidden md:inline-block">
-        {{ new Date(appointment.starts_at).toLocaleString() }}
-      </span>
+      <button
+        type="button"
+        class="bg-red-50 rounded-full border border-red-200 text-sm text-red-400 px-4 py-1.5 cursor-pointer hover:bg-red-100 transition-colors ease-in-out duration-300"
+        @click.stop="deleteAppointment(appointment.id)"
+      >
+        Eliminar
+      </button>
     </div>
 
     <p class="text-gray-700 text-sm">
       {{ appointment.notes }}
     </p>
 
-    <span class="text-gray-600 text-sm md:hidden block">
+    <span class="text-gray-600 text-sm">
       {{ new Date(appointment.starts_at).toLocaleString() }}
     </span>
   </Card>
@@ -116,7 +119,10 @@ import Modal from "../ui/Modal.vue";
 import Dropdown from "../ui/Dropdown.vue";
 
 import type { Appointment, AppointmentType } from "../../interfaces";
-import { UpdateAppointment } from "../../services/AppointmentService.ts";
+import {
+  DeleteAppointment,
+  UpdateAppointment,
+} from "../../services/AppointmentService.ts";
 import type { Person } from "../../interfaces/person.interface.ts";
 
 const props = defineProps<{
@@ -226,5 +232,19 @@ const validateForm = () => {
     return false;
   }
   return true;
+};
+
+const deleteAppointment = async (appointmentId: number) => {
+  try {
+    if (!confirm("¿Estás seguro de que deseas eliminar este registro?")) {
+      return;
+    }
+
+    await DeleteAppointment(appointmentId);
+
+    emit("updated");
+  } catch (error) {
+    console.error("Error deleting appointment:", error);
+  }
 };
 </script>

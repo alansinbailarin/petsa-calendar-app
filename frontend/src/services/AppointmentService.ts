@@ -31,6 +31,10 @@ export const UpdateAppointment = (appointment: Appointment) => {
   return api.put<Appointment>(`/appointments/${appointment.id}`, appointment);
 };
 
+export const DeleteAppointment = (appointmentId: number) => {
+  return api.delete<Appointment>(`/appointments/${appointmentId}`);
+};
+
 export const CreateAppointmentType = (appointmentType: AppointmentType) => {
   return api.post<AppointmentType>(`/appointment_types`, appointmentType);
 };
@@ -40,4 +44,8 @@ export const UpdateAppointmentType = (appointmentType: AppointmentType) => {
     `/appointment_types/${appointmentType.id}`,
     appointmentType,
   );
+};
+
+export const DeleteAppointmentType = (appointmentTypeId: number) => {
+  return api.delete<AppointmentType>(`/appointment_types/${appointmentTypeId}`);
 };
