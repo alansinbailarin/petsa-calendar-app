@@ -67,7 +67,7 @@
               ),
             }"
           >
-            {{ appointment.description }}
+            <span class="hidden md:block">{{ appointment.description }}</span>
           </div>
         </div>
       </div>

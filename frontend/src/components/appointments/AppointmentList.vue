@@ -26,14 +26,14 @@
 <script setup lang="ts">
 import Spinner from "../ui/Spinner.vue";
 import EmptyState from "../ui/EmptyState.vue";
-import type { Appointment } from "../../interfaces";
+import type { Appointment, AppointmentType } from "../../interfaces";
 import AppointmentItem from "./AppointmentItem.vue";
 import type { Person } from "../../interfaces/person.interface.ts";
 
 const props = defineProps<{
   loading: boolean;
   appointments: Appointment[];
-  appointmentTypes: any[];
+  appointmentTypes: AppointmentType[];
   persons: Person[];
 }>();
 

@@ -14,8 +14,6 @@ export const GetAppointments = (searchTerm?: string, date?: string) => {
 
   const queryString = params.toString();
 
-  console.log("params", queryString);
-
   return api.get<Appointment[]>(
     `/appointments${queryString ? `?${queryString}` : ""}`,
   );
@@ -31,4 +29,15 @@ export const CreateAppointment = (appointment: Appointment) => {
 
 export const UpdateAppointment = (appointment: Appointment) => {
   return api.put<Appointment>(`/appointments/${appointment.id}`, appointment);
+};
+
+export const CreateAppointmentType = (appointmentType: AppointmentType) => {
+  return api.post<AppointmentType>(`/appointment_types`, appointmentType);
+};
+
+export const UpdateAppointmentType = (appointmentType: AppointmentType) => {
+  return api.put<AppointmentType>(
+    `/appointment_types/${appointmentType.id}`,
+    appointmentType,
+  );
 };

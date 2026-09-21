@@ -2,7 +2,7 @@
   <div>
     <PageHeader title="Citas" subtitle="Maneja las citas disponibles">
       <template #actions>
-        <div class="hidden md:flex items-center gap-2">
+        <div class="items-center gap-2 flex">
           <button
             v-if="currentView == ViewType.CALENDAR"
             type="button"
@@ -19,8 +19,15 @@
           >
             <CalendarDaysIcon class="w-5 h-5 text-gray-600" />
           </button>
-          <Input v-model="search" placeholder="Buscar cita" type="search" />
-          <Button type="button" @click="showModal = true">Agregar Cita</Button>
+          <Input
+            v-model="search"
+            placeholder="Buscar cita"
+            type="search"
+            class="hidden md:flex"
+          />
+          <Button type="button" @click="showModal = true" class="hidden md:flex"
+            >Agregar Cita</Button
+          >
         </div>
       </template>
     </PageHeader>
@@ -109,6 +116,24 @@
       </div>
     </Modal>
   </div>
+  <div class="fixed bottom-3 left-3 right-3">
+    <div class="flex items-center gap-2 w-full">
+      <Input
+        v-model="search"
+        placeholder="Buscar cita"
+        type="search"
+        class="flex-1 min-w-0 block md:hidden"
+      />
+
+      <Button
+        class="block md:hidden shrink-0"
+        type="button"
+        @click="showModal = true"
+      >
+        <PlusIcon class="size-5" />
+      </Button>
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 import PageHeader from "../components/PageHeader.vue";
@@ -125,7 +150,11 @@ import {
 import AppointmentList from "../components/appointments/AppointmentList.vue";
 import { debounce } from "../composables/useDebounce";
 import { ViewType } from "../constants/enums.ts";
-import { QueueListIcon, CalendarDaysIcon } from "@heroicons/vue/24/outline";
+import {
+  QueueListIcon,
+  CalendarDaysIcon,
+  PlusIcon,
+} from "@heroicons/vue/24/outline";
 import Modal from "../components/ui/Modal.vue";
 import Dropdown from "../components/ui/Dropdown.vue";
 import type { Person } from "../interfaces/person.interface.ts";

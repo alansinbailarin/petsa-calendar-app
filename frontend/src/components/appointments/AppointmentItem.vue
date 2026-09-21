@@ -1,4 +1,3 @@
-```vue
 <template>
   <Card
     class="cursor-pointer"
